@@ -90,6 +90,8 @@ def send_to_logbook(routine, data, widget=None):
     xmlFile.write('\n')  # Close with newline so cron job parses correctly
     xmlFile.close()
     screenshot(widget, f'{fileName}.png')
+    
+    #TODO either return data or send from here to interface
 
 
 def screenshot(widget, filename):
