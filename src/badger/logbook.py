@@ -5,6 +5,7 @@ logger = logging.getLogger(__name__)
 from .settings import read_value
 from .archive import BADGER_ARCHIVE_ROOT
 from .errors import BadgerConfigError, BadgerLogbookError
+from .factory import get_intf
 
 
 # Check badger logbook root
@@ -89,9 +90,25 @@ def send_to_logbook(routine, data, widget=None):
     xmlFile.write(xmlString)
     xmlFile.write('\n')  # Close with newline so cron job parses correctly
     xmlFile.close()
-    screenshot(widget, f'{fileName}.png')
     
-    #TODO either return data or send from here to interface
+    # make screenshot optional
+    try:
+        screenshot(widget, f'{fileName}.png')
+    except BadgerLogbookError:
+        logger.warning(f"No Widget available for screenshot")
+    except ImportError:
+        logger.warning(f"Cannot save Screenshot. PIL package missing")
+    
+    # Call customized logbook if interface has a logbook function
+    try:
+        intf_name = routine['intf']
+        intf_logbook = routine['intf_params']['logbook']
+        if intf_logbook:
+            intf = get_intf(intf_name)
+            #TODO: define parameters for to_logbook function
+            intf.to_logbook()
+    except KeyError:
+        logger.warning(f"Interface {intf_name} has no logbook method.")
 
 
 def screenshot(widget, filename):
