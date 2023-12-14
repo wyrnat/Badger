@@ -89,7 +89,14 @@ def send_to_logbook(routine, data, widget=None):
     xmlFile.write(xmlString)
     xmlFile.write('\n')  # Close with newline so cron job parses correctly
     xmlFile.close()
-    screenshot(widget, f'{fileName}.png')
+    
+    # take screenshot of GUI if possible
+    try:
+        screenshot(widget, f'{fileName}.png')
+    except BadgerLogbookError as e:
+        logger.warning(e)
+    except ImportError:
+        logger.warning("Cannot save Screenshot. PIL package missing")
 
 
 def screenshot(widget, filename):
